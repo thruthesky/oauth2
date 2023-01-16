@@ -26,15 +26,15 @@ admin.initializeApp({
 async function upudateOrCreateUser(userModel: User) {
   const updateParams = {
     uid: userModel.uid,
-    provider: userModel.provider,
     displayName: userModel.displayName,
     photoURL: userModel.photoURL,
     email: userModel.email,
   };
+  console.log("updateParams", updateParams);
   try {
     await admin.auth().updateUser(userModel.uid, updateParams);
   } catch (error: any) {
-    console.log("Error updating user:", error);
+    console.log("Error updating user:", error.code, error.message);
     if (error.code === "auth/user-not-found") {
       return admin.auth().createUser(updateParams);
     }
@@ -104,9 +104,7 @@ function authHandler(fn: Function, provider: string) {
           await upudateOrCreateUser(user);
 
           // Generate custom firebase token and return to client
-          const firebaseToken = await admin
-            .auth()
-            .createCustomToken(user.uid, { provider });
+          const firebaseToken = await admin.auth().createCustomToken(user.uid);
           response.send({ firebaseToken });
         } catch (error) {
           console.log(`Error: ${provider} auth handler`, error);

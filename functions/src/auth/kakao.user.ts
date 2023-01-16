@@ -1,6 +1,6 @@
 import axios from "axios";
 import { User, KakaoUser } from "./user.interface";
-import { kakaoApiUrl, kakaoProvider } from "./config";
+import { kakaoApiUrl } from "./config";
 
 /**
  * Get user profile from Kakao API
@@ -21,10 +21,10 @@ export async function getKakaoUser(token: string): Promise<User> {
   const user: User = {
     uid: `kakao:${kakaoUser.data.id}`,
     email:
-      kakaoUser.data.kakao_account.email || "${kakaoUser.data.id}@kakao.com",
+      kakaoUser.data.kakao_account.email ||
+      `email${kakaoUser.data.id}@kakao.com`,
     displayName: kakaoUser.data.properties.nickname || "",
     photoURL: kakaoUser.data.properties.profile_image || "",
-    provider: kakaoProvider,
   };
   return user;
 }
