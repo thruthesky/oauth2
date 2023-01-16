@@ -62,6 +62,11 @@ function authHandler(fn: Function, provider: string) {
 
         console.log("[Success] got code ", req.query);
 
+        /**
+         * 카카오톡 로그인 토큰 가져오기
+         *
+         * 네이버 로그인은 아래와 같은 비슷한 코드로 가져오면 된다.
+         */
         let res;
         try {
           /**
