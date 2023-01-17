@@ -124,7 +124,64 @@ function authHandler(fn: (token: string) => Promise<User>, provider: string) {
             const firebaseToken = await admin
               .auth()
               .createCustomToken(user.uid);
-            response.send({ firebaseToken });
+
+            // response.send({ firebaseToken });
+            return response.send(`
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <meta charset="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <title>Redirecting...</title>
+                <style>
+                
+                body {
+                  margin:0 auto;
+                  font-family: 'Apple SD Gothic Neo','Malgun Gothic',arial,sans-serif;
+                  font-size: 14px;
+                }
+                div.content {
+                    margin:0 auto; width:100%; text-align:center; padding-top:100px;
+                  }
+                .loader {
+                  margin: 0 auto;
+                  width: 32px;
+                  height: 32px;
+                  border: 4px solid #f3f3f3;
+                }
+                .mt-1 {
+                  margin-top: 1rem;
+                }
+                .rotate {
+                  width: 32px;
+                  animation: rotation 2s infinite linear;
+                }
+                @keyframes rotation {
+                  from {
+                    transform: rotate(0deg);
+                  }
+                  to {
+                    transform: rotate(359deg);
+                  }
+                }
+                </style>
+                <script>
+                  window.location.href = "https://withcentertest.page.link/?link=https://oauth.flutterflow.app/loginCallback%3Ftoken=${firebaseToken}";
+                </script>
+              </head>
+              <body>
+                
+                <div class="content">
+                <div class="loader rotate"></div>
+                <div class="mt-1">
+                ...
+                  <div class="mt-1">카카오톡으로 로그인 중입니다.</div>
+                  <div class="mt-1" style="color:grey;">잠시만 기다려주세요.</div>
+                </div>
+                </div>
+              </body>
+            </html>
+              `);
           } catch (error) {
             console.log(`Error: ${provider} auth handler`, error);
             response.status(500).send("Internal Server Error");
