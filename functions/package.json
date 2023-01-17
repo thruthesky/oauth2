@@ -1,13 +1,14 @@
 {
   "name": "functions",
   "scripts": {
-    "lint": "eslint --fix --ext .js,.ts .",
+    "lint": "eslint --ext .js,.ts .",
+    "lint:fix": "eslint --fix --ext .js,.ts .",
     "build": "tsc",
     "build:watch": "tsc --watch",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
-    "deploy": "npm run lint && firebase deploy --only functions",
+    "deploy": "npm run lint:fix && firebase deploy --only functions:kakaoLogin",
     "logs": "firebase functions:log"
   },
   "engines": {

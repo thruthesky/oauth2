@@ -2,7 +2,7 @@ interface User {
   uid: string;
   email: string;
   displayName: string;
-  photoURL: string;
+  photoURL?: string;
 }
 
 /**
@@ -70,4 +70,4 @@ interface NaverUser {
   };
 }
 
-export { User, KakaoUser, NaverUser };
+export {User, KakaoUser, NaverUser};
