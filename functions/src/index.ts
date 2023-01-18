@@ -75,11 +75,12 @@ function authHandler(fn: (token: string) => Promise<User>, provider: string) {
         .https.onRequest(async (req: any, response: any) => {
           return cors(req, response, async () => {
             if (req.query?.error) {
-              return response
+              response
                   .status(403)
                   .send(
                       `Error: {$req.query.error}, Description: ${req.query.error_description}`
                   );
+              return;
             }
             const code = req.query?.code;
             const state = req.query?.state;
@@ -92,7 +93,8 @@ function authHandler(fn: (token: string) => Promise<User>, provider: string) {
             }
 
             if (!code) {
-              return response.status(403).send("Didn't get authorized code.");
+              response.status(403).send("Didn't get authorized code.");
+              return;
             }
 
             if (debugLog) {
@@ -137,9 +139,12 @@ function authHandler(fn: (token: string) => Promise<User>, provider: string) {
               if (debugLog) {
                 console.log("Error on axios.post(/oauth/token) ", error);
               }
-              return response
+              response
                   .status(500)
-                  .send(`Internal Server Error, ${error.message}`);
+                  .send(
+                      `Internal Server Error On Getting Auth Token ${error.message}`
+                  );
+              return;
             }
 
             const token: TokenResponse = res.data;
@@ -154,7 +159,9 @@ function authHandler(fn: (token: string) => Promise<User>, provider: string) {
               const firebaseToken = await admin
                   .auth()
                   .createCustomToken(user.uid);
-
+              if (debugLog) {
+                console.log("Firebase custom token; ", firebaseToken);
+              }
               await admin.firestore().collection("temp").doc(state).set(
                   {
                     token: firebaseToken,
@@ -162,68 +169,32 @@ function authHandler(fn: (token: string) => Promise<User>, provider: string) {
                   {merge: true}
               );
 
-              // response.send({ firebaseToken });
-              return response.send(`
+              if (debugLog) {
+                console.log("[Success] Set custom token to temp doc; ");
+              }
+
+              response.status(200).send(`
             <!DOCTYPE html>
             <html>
               <head>
-                <meta charset="utf-8" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <title>Redirecting...</title>
-                <style>
-                
-                body {
-                  margin:0 auto;
-                  font-family: 'Apple SD Gothic Neo','Malgun Gothic',arial,sans-serif;
-                  font-size: 14px;
-                }
-                div.content {
-                    margin:0 auto; width:100%; text-align:center; padding-top:100px;
-                  }
-                .loader {
-                  margin: 0 auto;
-                  width: 32px;
-                  height: 32px;
-                  border: 4px solid #f3f3f3;
-                }
-                .mt-1 {
-                  margin-top: 1rem;
-                }
-                .rotate {
-                  width: 32px;
-                  animation: rotation 2s infinite linear;
-                }
-                @keyframes rotation {
-                  from {
-                    transform: rotate(0deg);
-                  }
-                  to {
-                    transform: rotate(359deg);
-                  }
-                }
-                </style>
                 <script>
                   window.location.href = "https://withcentertest.page.link/Kz3a";
                 </script>
               </head>
               <body>
-                
-                <div class="content">
-                <div class="loader rotate"></div>
-                <div class="mt-1">
-                ...
-                  <div class="mt-1">카카오톡으로 로그인 중입니다.</div>
-                  <div class="mt-1" style="color:grey;">잠시만 기다려주세요.</div>
-                </div>
-                </div>
               </body>
             </html>
               `);
-            } catch (error) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } catch (error: any) {
               if (debugLog) {
                 console.log(`Error: ${provider} auth handler`, error);
               }
-              response.status(500).send("Internal Server Error");
+              response
+                  .status(500)
+                  .send(
+                      `Internal Server Error On Get Kakao User Info, Firebase Auth Create or Update: ${error.code}, ${error.message}`
+                  );
             }
           });
         })

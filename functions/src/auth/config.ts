@@ -10,7 +10,7 @@ const workOn: "local" | "remote" = "remote";
 /**
  * 개발 작업 및 테스트 하는 경우, true 로 지정하여 로그를 확인 할 수 있다.
  */
-const debugLog = false;
+const debugLog = true;
 
 /**
  * Firebase Cloud Functions 가 실행되는 Region. asia-northeast3 는 서울이다.
